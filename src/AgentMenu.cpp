@@ -871,7 +871,7 @@ void AgentMenu::printClients(AgentNode* agentNode){
     int HEIGHT, LENGTH;
     getyx(stdscr, HEIGHT, LENGTH);
 
-    move(HEIGHT, LENGTH);   2`
+    move(HEIGHT, LENGTH);
     //makes sure there are nodes in the list
     if(temp != nullptr) {
         //this is when there is only one client in the list
