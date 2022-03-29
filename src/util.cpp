@@ -92,11 +92,14 @@ string inputString(){
     while(tempCharacter != ENTER){
         tempCharacterStr = tempCharacter;
         if(int(tempCharacter) == BACKSPACE){
-            result.pop_back();
-            move(y, x);
-            clrtobot();
-            printw("%s", result.data());
-            tempX = x + result.length();
+            getyx(stdscr, tempY, tempX);
+            if(tempX != x) {
+                result.pop_back();
+                tempX--;
+                move(tempY, tempX);
+                printw(" ");
+                move(tempY, tempX);
+            }
         } else {
             result += tempCharacter;
             move(tempY, tempX);
@@ -136,11 +139,14 @@ int inputInteger(){
             printw("%s", tempCharacterStr.data());
             tempX++;
         } else if(tempCharacter == BACKSPACE){
-            tempResult.pop_back();
-            move(y, x);
-            clrtobot();
-            printw("%s", tempResult.data());
-            tempX = x + tempResult.length();
+            getyx(stdscr, tempY, tempX);
+            if(tempX != x) {
+                tempResult.pop_back();
+                tempX--;
+                move(tempY, tempX);
+                printw(" ");
+                move(tempY, tempX);
+            }
         }
         tempCharacter = getch();
     }
@@ -191,12 +197,14 @@ int inputIntegerDigitLimit(int digits){
             digitLimit = true;
         }
         if(tempCharacter == BACKSPACE){
-            tempResult.pop_back();
             getyx(stdscr, tempY, tempX);
-            tempX--;
-            move(tempY, tempX);
-            printw(" ");
-            move(tempY, tempX);
+            if(tempX != x) {
+                tempResult.pop_back();
+                tempX--;
+                move(tempY, tempX);
+                printw(" ");
+                move(tempY, tempX);
+            }
         }
         tempCharacter = getch();
 
