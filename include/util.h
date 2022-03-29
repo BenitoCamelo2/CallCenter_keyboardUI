@@ -38,6 +38,7 @@ void agentListHeader();
 void clientListHeader();
 
 string inputString();
+string inputStringCharacterLimit(int limit);
 int inputInteger();
 int inputIntegerDigitLimit(int digits);
 

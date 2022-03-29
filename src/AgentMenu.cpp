@@ -15,7 +15,10 @@ AgentMenu::AgentMenu(AgentList* agentList): agentListRef(agentList) {
 }
 
 
-void AgentMenu::enterToContinue(int HEIGHT, int LENGTH) {
+void AgentMenu::enterToContinue() {
+    int HEIGHT, LENGTH;
+
+    getyx(stdscr, HEIGHT, LENGTH);
 
     move(HEIGHT, LENGTH);
     printw("Presione enter para continuar...\n");
@@ -354,30 +357,30 @@ void AgentMenu::modifyAgent() {
             case KEY_UP: {
                 option--;
                 //makes sure option doesn't go farther than options available
-                if (option > AGENT_MENU_OPTIONS) {
+                if (option > AGENT_MODIFY_OPTIONS) {
                     option = 0;
                 } else if (option < 0) {
-                    option = AGENT_MENU_OPTIONS;
+                    option = AGENT_MODIFY_OPTIONS;
                 }
                 break;
             }
                 //option goes down
             case KEY_DOWN: {
                 option++;
-                if (option > AGENT_MENU_OPTIONS) {
+                if (option > AGENT_MODIFY_OPTIONS) {
                     option = 0;
                 } else if (option < 0) {
-                    option = AGENT_MENU_OPTIONS;
+                    option = AGENT_MODIFY_OPTIONS;
                 }
                 break;
             }
                 //user selects desired option
             case ENTER: {
                 //makes sure option is valid, just in case
-                if (option > AGENT_MENU_OPTIONS) {
+                if (option > AGENT_MODIFY_OPTIONS) {
                     option = 0;
                 } else if (option < 0) {
-                    option = AGENT_MENU_OPTIONS;
+                    option = AGENT_MODIFY_OPTIONS;
                 }
                 switch (option) {
                     case MODIFY_CODE: {
@@ -581,8 +584,10 @@ void AgentMenu::modifyAgent() {
                         break;
                     }
                     default: {
+                        HEIGHT++;
                         printw("Opcion invalida");
-                        enterToContinue(HEIGHT, LENGTH);
+                        HEIGHT++;
+                        enterToContinue();
                     }
                 }
             }
@@ -593,141 +598,429 @@ void AgentMenu::modifyAgent() {
 void AgentMenu::searchAgent() {
     bool terminate = false;
 
+    string searchOptions[AGENT_SEARCH_OPTIONS] = {"   Codigo                      ",
+                                                  "   Apellido                    ",
+                                                  "   Hora de inicio de jornada   ",
+                                                  "   Hora fin de jornada         ",
+                                                  "   Extension                   ",
+                                                  "   Especialidad                ",
+                                                  "   Regresar                    "};
+
+    int HEIGHT, LENGTH;
+    int key = '\0';
+    int option = 0;
+
+    curs_set(0);
+    refresh();
+
     //chose what to search by
     do{
-        int option = 0;
-        erase();
-        printw("BUSCAR AGENTE\n");
-        printw("Buscar por: ");
-        printw("1. Codigo");
-        printw("2. Apellido");
-        printw("3. Hora de inicio de horario");
-        printw("4. Hora de fin de horario");
-        printw("5. Extension");
-        printw("6. Especialidad");
-        printw("7. Regresar");
-        printw("Opcion: ");
-        cin >> option;
-        switch(option){
-        //search options
-            case SEARCH_CODE: {
-                int codeINT;
-                string codeSTR;
-                Agent tempAgent;
-
-                printw("Ingresa un codigo: ");
-                cin >> codeINT;
-                while(!verifyINT(1,-1,codeINT)){
-                    printw("Ingresa de nuevo: ");
-                    cin >> codeINT;
+        HEIGHT = 10, LENGTH = 50;
+        move(HEIGHT, LENGTH);
+        printw("BUSCAR AGENTE");
+        HEIGHT++;
+        move(HEIGHT, LENGTH);
+        for(int i = 0; i < AGENT_SEARCH_OPTIONS; i++){
+            //selected option is found
+            if(i == option){
+                if(!has_colors()){
+                    printw("Error, terminal no tiene soporte para colores");
+                } else {
+                    attron(COLOR_PAIR(WHITE_TEXT_BLUE_BACKGROUND));
+                    printw("%s", searchOptions[i].data());
+                    attroff(COLOR_PAIR(WHITE_TEXT_BLUE_BACKGROUND));
                 }
-                codeSTR = to_string(codeINT);
-                tempAgent.setCode(codeSTR);
+                //selected option is not current option
+            } else {
+                printw("%s", searchOptions[i].data());
+            }
+            //go one line down
+            HEIGHT += 1;
+            move(HEIGHT, LENGTH);
+        }
+        key = getch();
+        switch(key){
+            //option goes up
+            case KEY_UP: {
+                option--;
+                //makes sure option doesn't go farther than options available
+                if (option > AGENT_SEARCH_OPTIONS) {
+                    option = 0;
+                } else if (option < 0) {
+                    option = AGENT_SEARCH_OPTIONS;
+                }
+                break;
+            }
+                //option goes down
+            case KEY_DOWN: {
+                option++;
+                if (option > AGENT_SEARCH_OPTIONS) {
+                    option = 0;
+                } else if (option < 0) {
+                    option = AGENT_SEARCH_OPTIONS;
+                }
+                break;
+            }
+                //user selects desired option
+            case ENTER: {
+                //makes sure option is valid, just in case
+                if (option > AGENT_SEARCH_OPTIONS) {
+                    option = 0;
+                } else if (option < 0) {
+                    option = AGENT_SEARCH_OPTIONS;
+                }
+                clear();
+                refresh();
+                curs_set(1);
+                switch(option){
+                    //search options
+                    case SEARCH_CODE: {
+                        string codeStr, cStr;
+                        char c;
+                        int tempX, tempY;
+                        HEIGHT = 2;
+                        LENGTH = 50;
+                        tempX = HEIGHT;
+                        tempY = LENGTH;
 
-                agentListHeader();
-                printAgent(agentListRef->findData(tempAgent, SEARCH_CODE));
-                //cin.ignore();enterToContinue(HEIGHT, LENGTH);
+                        move(HEIGHT, LENGTH);
+                        printw("Ingresa el codigo: ");
+                        c = getch();
+                        while(c != ENTER){
+                            cStr = c;
+                            if(int(c) == BACKSPACE){
+                                getyx(stdscr, tempY, tempX);
+                                if(tempX != LENGTH) {
+                                    codeStr.pop_back();
+                                    tempX--;
+                                    move(tempY, tempX);
+                                    printw(" ");
+                                    move(tempY, tempX);
+                                }
+                            } else {
+                                codeStr += c;
+                                move(tempY, tempX);
+                                printw("%s", cStr.data());
+                                tempX++;
+                            }
+                            searchPrintAgents(SEARCH_CODE, codeStr);
+                            c = getch();
+                        }
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
+                        enterToContinue();
+                        break;
+                    }
+                    case SEARCH_LAST_NAME: {
+                        string lastName, cStr;
+                        char c;
+                        int tempX, tempY;
+                        HEIGHT = 2;
+                        LENGTH = 50;
+                        tempX = HEIGHT;
+                        tempY = LENGTH;
+
+                        move(HEIGHT, LENGTH);
+                        printw("Ingresa el codigo: ");
+                        c = getch();
+                        while(c != ENTER){
+                            cStr = c;
+                            if(int(c) == BACKSPACE){
+                                getyx(stdscr, tempY, tempX);
+                                if(tempX != LENGTH) {
+                                    lastName.pop_back();
+                                    tempX--;
+                                    move(tempY, tempX);
+                                    printw(" ");
+                                    move(tempY, tempX);
+                                }
+                            } else {
+                                lastName += c;
+                                move(tempY, tempX);
+                                printw("%s", cStr.data());
+                                tempX++;
+                            }
+                            searchPrintAgents(SEARCH_LAST_NAME, lastName);
+                            c = getch();
+                        }
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
+                        enterToContinue();
+                        break;
+                    }
+                    case SEARCH_HOUR_START: {
+                        string hour, cStr;
+                        char c;
+                        int tempX, tempY;
+                        HEIGHT = 2;
+                        LENGTH = 50;
+                        tempX = HEIGHT;
+                        tempY = LENGTH;
+
+                        move(HEIGHT, LENGTH);
+                        printw("Ingresa el codigo: ");
+                        c = getch();
+                        while(c != ENTER){
+                            cStr = c;
+                            if(int(c) == BACKSPACE){
+                                getyx(stdscr, tempY, tempX);
+                                if(tempX != LENGTH) {
+                                    hour.pop_back();
+                                    tempX--;
+                                    move(tempY, tempX);
+                                    printw(" ");
+                                    move(tempY, tempX);
+                                }
+                            } else {
+                                hour += c;
+                                move(tempY, tempX);
+                                printw("%s", cStr.data());
+                                tempX++;
+                            }
+                            searchPrintAgents(SEARCH_HOUR_START, hour);
+                            c = getch();
+                        }
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
+                        enterToContinue();
+                        break;
+                    }
+                    case SEARCH_HOUR_END: {
+                        string hour, cStr;
+                        char c;
+                        int tempX, tempY;
+                        HEIGHT = 2;
+                        LENGTH = 50;
+                        tempX = HEIGHT;
+                        tempY = LENGTH;
+
+                        move(HEIGHT, LENGTH);
+                        printw("Ingresa el codigo: ");
+                        c = getch();
+                        while(c != ENTER){
+                            cStr = c;
+                            if(int(c) == BACKSPACE){
+                                getyx(stdscr, tempY, tempX);
+                                if(tempX != LENGTH) {
+                                    hour.pop_back();
+                                    tempX--;
+                                    move(tempY, tempX);
+                                    printw(" ");
+                                    move(tempY, tempX);
+                                }
+                            } else {
+                                hour += c;
+                                move(tempY, tempX);
+                                printw("%s", cStr.data());
+                                tempX++;
+                            }
+                            searchPrintAgents(SEARCH_HOUR_END, hour);
+                            c = getch();
+                        }
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
+                        enterToContinue();
+                        break;
+                    }
+                    case SEARCH_EXTENSION: {
+                        string extension, cStr;
+                        char c;
+                        int tempX, tempY;
+                        HEIGHT = 2;
+                        LENGTH = 50;
+                        tempX = HEIGHT;
+                        tempY = LENGTH;
+
+                        move(HEIGHT, LENGTH);
+                        printw("Ingresa el codigo: ");
+                        c = getch();
+                        while(c != ENTER){
+                            cStr = c;
+                            if(int(c) == BACKSPACE){
+                                getyx(stdscr, tempY, tempX);
+                                if(tempX != LENGTH) {
+                                    extension.pop_back();
+                                    tempX--;
+                                    move(tempY, tempX);
+                                    printw(" ");
+                                    move(tempY, tempX);
+                                }
+                            } else {
+                                extension += c;
+                                move(tempY, tempX);
+                                printw("%s", cStr.data());
+                                tempX++;
+                            }
+                            searchPrintAgents(SEARCH_EXTENSION, extension);
+                            c = getch();
+                        }
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
+                        enterToContinue();
+                        break;
+                    }
+                    case SEARCH_SPECIALTY: {
+                        string specialty, cStr;
+                        char c;
+                        int tempX, tempY;
+                        HEIGHT = 2;
+                        LENGTH = 50;
+                        tempX = HEIGHT;
+                        tempY = LENGTH;
+
+                        move(HEIGHT, LENGTH);
+                        printw("Ingresa el codigo: ");
+                        c = getch();
+                        while(c != ENTER){
+                            cStr = c;
+                            if(int(c) == BACKSPACE){
+                                getyx(stdscr, tempY, tempX);
+                                if(tempX != LENGTH) {
+                                    specialty.pop_back();
+                                    tempX--;
+                                    move(tempY, tempX);
+                                    printw(" ");
+                                    move(tempY, tempX);
+                                }
+                            } else {
+                                specialty += c;
+                                move(tempY, tempX);
+                                printw("%s", cStr.data());
+                                tempX++;
+                            }
+                            searchPrintAgents(SEARCH_HOUR_START, specialty);
+                            c = getch();
+                        }
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
+                        enterToContinue();
+                        break;
+                    }
+                    case EXIT_SEARCH: {
+                        terminate = true;
+                        break;
+                    }
+                    default: {
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
+                        printw("Seleccione una opcion valida");
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
+                        enterToContinue();
+                        clrtobot();
+                        refresh();
+                    }
+                }
+                break;
+            }
+        }
+        curs_set(0);
+        clear();
+        refresh();
+    }while(!terminate);
+}
+
+void AgentMenu::searchPrintAgents(const int &searchBy, string &searchTerm) {
+    AgentNode* temp(agentListRef->getFirstPos());
+    AgentNode* last(agentListRef->getLastPos());
+
+    int HEIGHT, LENGTH;
+    getyx(stdscr, HEIGHT, LENGTH);
+    move(HEIGHT+1, 0);
+    clrtobot();
+    int tempX = 42, tempY = HEIGHT;
+
+    start_color();
+
+    if(searchTerm.empty()){
+        clrtobot();
+        refresh();
+    } else if(temp != nullptr) {
+    //makes sure there is at least 1 agent, or else it breaks
+        tempY += 2;
+        move(tempY, tempX);
+        attron(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
+        printw("|Nombre             |Codigo             |");
+        attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
+        switch(searchBy){
+            case SEARCH_CODE: {
+                while (temp != nullptr) {
+                    if(temp->getData().getCode().find(searchTerm) != -1) {
+                        getyx(stdscr, tempY, tempX);
+                        move(tempY, 42);
+                        printAgentSumarized(temp);
+                    }
+                    temp = temp->getNext();
+                }
                 break;
             }
             case SEARCH_LAST_NAME: {
-                string lastName, firstName;
-                Name name;
-                Agent tempAgent;
-
-                printw("Ingresa el apellido: ");
-                cin.ignore();getline(cin, lastName);
-                name.setData(firstName, lastName);
-                tempAgent.setName(name);
-
-                agentListHeader();
-                printAgent(agentListRef->findData(tempAgent, SEARCH_LAST_NAME));
-                //enterToContinue();
+                while(temp != nullptr){
+                    if(temp->getData().getName().getLastName().find(searchTerm) != -1){
+                        getyx(stdscr, tempY, tempX);
+                        move(tempY, 42);
+                        printAgentSumarized(temp);
+                    }
+                    temp = temp->getNext();
+                }
                 break;
             }
             case SEARCH_HOUR_START: {
-                int hour, minute=0;
-                Time time;
-                Agent tempAgent;
-
-                printw("Ingresa la hora de inicio: ");
-                cin >> hour;
-
-                while(!time.setData(hour, minute)){
-                    printw("Ingresa la hora de nuevo: ");
-                    cin >> hour;
+                while(temp != nullptr){
+                    if(to_string(temp->getData().getStartTime().getHour()).find(searchTerm) != -1){
+                        getyx(stdscr, tempY, tempX);
+                        move(tempY, 42);
+                        printAgentSumarized(temp);
+                    }
+                    temp = temp->getNext();
                 }
-                tempAgent.setStartTime(time);
-
-                agentListHeader();
-                printAgent(agentListRef->findData(tempAgent, SEARCH_HOUR_START));
-                //cin.ignore();enterToContinue();
                 break;
             }
             case SEARCH_HOUR_END: {
-                int hour, minute=0;
-                Time time;
-                Agent tempAgent;
-
-                printw("Ingresa la hora de fin: ");
-                cin >> hour;
-
-                while(!time.setData(hour, minute)){
-                    printw("Ingresa la hora de nuevo: ");
-                    cin >> hour;
+                while(temp != nullptr){
+                    if(to_string(temp->getData().getEndTime().getHour()).find(searchTerm) != -1){
+                        getyx(stdscr, tempY, tempX);
+                        move(tempY, 42);
+                        printAgentSumarized(temp);
+                    }
+                    temp = temp->getNext();
                 }
-                tempAgent.setEndTime(time);
-
-                agentListHeader();
-                printAgent(agentListRef->findData(tempAgent, SEARCH_HOUR_END));
-                //cin.ignore();enterToContinue();
                 break;
             }
             case SEARCH_EXTENSION: {
-                int extension;
-                Agent tempAgent;
-
-                printw("Ingresa la extension: ");
-                cin >> extension;
-                while(!verifyINT(0, -1, extension)){
-                    printw("Ingresa de nuevo: ");
-                    cin >> extension;
+                while(temp != nullptr){
+                    if(to_string(temp->getData().getExtension()).find(searchTerm) != -1){
+                        getyx(stdscr, tempY, tempX);
+                        move(tempY, 42);
+                        printAgentSumarized(temp);
+                    }
+                    temp = temp->getNext();
                 }
-                tempAgent.setExtension(extension);
-
-                agentListHeader();
-                printAgent(agentListRef->findData(tempAgent, SEARCH_EXTENSION));
-                //cin.ignore();enterToContinue();
                 break;
             }
             case SEARCH_SPECIALTY: {
-                int specialty;
-                Agent tempAgent;
-
-                printw("Ingresa la especialidad: ");
-                cin >> specialty;
-                while(!verifyINT(1, 6, specialty)){
-                    printw("Ingresa de nuevo: ");
-                    cin >> specialty;
+                while(temp != nullptr){
+                    if(to_string(temp->getData().getSpecialty()).find(searchTerm) != -1){
+                        getyx(stdscr, tempY, tempX);
+                        move(tempY, 42);
+                        printAgentSumarized(temp);
+                    }
+                    temp = temp->getNext();
                 }
-
-                tempAgent.setSpecialty(specialty);
-
-                agentListHeader();
-                printAgent(agentListRef->findData(tempAgent, SEARCH_SPECIALTY));
-                //cin.ignore();enterToContinue();
-                break;
-            }
-            case EXIT_SEARCH: {
-                terminate = true;
                 break;
             }
             default: {
-                printw("Seleccione una opcion valida");
-                cin.ignore();
-                //enterToContinue();
+                tempY++;
+                move(tempY, tempX);
+                printw("Error en busqueda");
             }
         }
-    }while(!terminate);
+    } else {
+        tempY++;
+        move(tempY, LENGTH);
+        printw("No hay agentes en la lista");
+    }
+    move(HEIGHT, LENGTH);
 }
 
 void AgentMenu::sortAgents() {
@@ -737,10 +1030,14 @@ void AgentMenu::sortAgents() {
 void AgentMenu::printAgent(AgentNode* agentNode) {
     string extraHours;
 
+    int x, y;
+    getyx(stdscr, y, x);
+    move(y+1, x);
+
     printw("|%s", agentNode->getData().getName().toString().data());
-    printSpaces(19 - agentNode->getData().getName().toString().size());
+    printSpaces(19 - agentNode->getData().getName().toString().length());
     printw("|%s", agentNode->getData().getCode().data());
-    printSpaces(19 - agentNode->getData().getCode().size());
+    printSpaces(19 - agentNode->getData().getCode().length());
     printw("|");
     switch(agentNode->getData().getSpecialty()){
         case SERVIDORES: {
@@ -780,7 +1077,22 @@ void AgentMenu::printAgent(AgentNode* agentNode) {
     printw("|");
 }
 
+void AgentMenu::printAgentSumarized(AgentNode* agentNode) {
+    int x, y;
+    getyx(stdscr, y, x);
+    move(y+1, x);
+    printw("|%s", agentNode->getData().getName().toString().data());
+    printSpaces(19 - agentNode->getData().getName().toString().size());
+    printw("|%s", agentNode->getData().getCode().data());
+    printSpaces(19 - agentNode->getData().getCode().length());
+    printw("|");
+}
+
 void AgentMenu::printClient(ClientNode* clientNode){
+    int x, y;
+    getyx(stdscr, y, x);
+    move(y+1, x);
+
     //prints data in this structure:
     //|PhoneNumber|CallDate|CallStart|CallDuration|
     //can always build it some day to calculate when the call ended
@@ -805,24 +1117,27 @@ void AgentMenu::printAgents(const string& option) {
 
     move(HEIGHT, LENGTH);
 
+    start_color();
+
     //makes sure there is at least 1 agent, or else it breaks
     if(temp != nullptr) {
         //prints the first line of the list, which shows the categories
+        attron(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
         printw("-----------------------------------------------------------------------------------------------");
+        attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
         HEIGHT++;
         move(HEIGHT, LENGTH);
         agentListHeader();
-        HEIGHT++;
-        move(HEIGHT, LENGTH);
         //in this case there is only one element in the list
         if(temp == last) {
             if(option == "s" || option == "S"){
+                move(HEIGHT, 0);
                 printAgent(temp);
                 if(temp->getData().getClientList()->getFirstPos() != nullptr) {
-                    HEIGHT++;
-                    move(HEIGHT, LENGTH);
                     printw("\t");
+                    attron(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
                     printw("------------------------------------------------------------------------------------");
+                    attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
                     HEIGHT++;
                     move(HEIGHT, LENGTH);
                     printw("\t");
@@ -830,25 +1145,24 @@ void AgentMenu::printAgents(const string& option) {
                     HEIGHT++;
                     move(HEIGHT, LENGTH);
                     printClients(temp);
-                    HEIGHT++;
-                    move(HEIGHT, LENGTH);
                 }
             } else {
+                move(HEIGHT, 0);
                 printAgent(temp);
             }
         //more than one element in the list
         } else {
             if(option == "s" || option == "S"){
                 while (temp != nullptr) {
-                    agentListHeader();
+                    getyx(stdscr, HEIGHT, LENGTH);
+                    move(HEIGHT, 0);
+                    move(HEIGHT, 0);
                     printAgent(temp);
-                    HEIGHT++;
-                    move(HEIGHT, LENGTH);
                     if(temp->getData().getClientList()->getFirstPos() != nullptr) {
-                        HEIGHT++;
-                        move(HEIGHT, LENGTH);
                         printw("\t");
+                        attron(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
                         printw("------------------------------------------------------------------------------------");
+                        attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
                         HEIGHT++;
                         move(HEIGHT, LENGTH);
                         printw("\t");
@@ -856,14 +1170,14 @@ void AgentMenu::printAgents(const string& option) {
                         HEIGHT++;
                         move(HEIGHT, LENGTH);
                         printClients(temp);
-                        HEIGHT++;
-                        move(HEIGHT, LENGTH);
                     }
                     temp = temp->getNext();
                 }
 
             } else {
                 while (temp != nullptr) {
+                    getyx(stdscr, HEIGHT, LENGTH);
+                    move(HEIGHT, 0);
                     printAgent(temp);
                     temp = temp->getNext();
                 }
@@ -872,9 +1186,10 @@ void AgentMenu::printAgents(const string& option) {
     } else {
         printw("No hay agentes en la lista");
     }
+    getyx(stdscr, HEIGHT, LENGTH);
     HEIGHT++;
-    LENGTH = 0;
-    enterToContinue(HEIGHT, LENGTH);
+    move(HEIGHT, 0);
+    enterToContinue();
     clear();
     refresh();
 }
@@ -906,9 +1221,6 @@ void AgentMenu::printClients(AgentNode* agentNode){
     }
     HEIGHT++;
     LENGTH = 0;
-    enterToContinue(HEIGHT, LENGTH);
-    clear();
-    refresh();
 }
 
 void AgentMenu::mainAgentMenu() {
@@ -1055,7 +1367,7 @@ void AgentMenu::mainAgentMenu() {
                             getyx(stdscr, HEIGHT, LENGTH);
                             HEIGHT++;
                             LENGTH = 0;
-                            enterToContinue(HEIGHT, LENGTH);
+                            enterToContinue();
                         }
                         clear();
                         refresh();
@@ -1071,7 +1383,7 @@ void AgentMenu::mainAgentMenu() {
                         move(HEIGHT, LENGTH);
                         printw("Opcion invalida");
                         HEIGHT++;
-                        enterToContinue(HEIGHT, LENGTH);
+                        enterToContinue();
                         break;
                     }
                 }

@@ -59,12 +59,17 @@ bool verifyINT(int min, int max, int n){
 
 //agent list header
 void agentListHeader(){
+    start_color();
+    attron(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
     printw("|Nombre             |Codigo             |Especialidad       |Horas        |Horas extras       |");
+    attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
 }
 
 //client list header
 void clientListHeader(){
+    attron(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
     printw("|Numero Telefonico  |Fecha de llamada   |Hora inicio de llamada|Duracion de llamada|");
+    attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
 }
 
 //function to get string input
@@ -107,6 +112,66 @@ string inputString(){
             tempX++;
         }
         tempCharacter = getch();
+    }
+
+    attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
+
+    //sends string back
+    return result;
+}
+
+string inputStringCharacterLimit(int limit){
+    //result is returned as the input string
+    string result;
+    //temporarly gets input
+    char tempCharacter = getch();
+    //converts the input to string
+    string tempCharacterStr;
+    bool characterLimit = false;
+
+    //position data, x and y keep original position
+    //should use to verify someone doesn't backspace too far (-1)
+    int x, y;
+    int tempX, tempY;
+    getyx(stdscr, y, x);
+    tempX = x;
+    tempY = y;
+
+    //starts color attribute, might make parameter
+    start_color();
+    attron(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
+
+    //gets input
+    while(tempCharacter != ENTER) {
+        if (characterLimit) {
+            move(tempY + 1, 0);
+            clrtobot();
+            move(tempY, tempX);
+            refresh();
+        }
+        tempCharacterStr = tempCharacter;
+        if (result.length() < limit && tempCharacter != BACKSPACE) {
+            result += tempCharacter;
+            move(tempY, tempX);
+            printw("%s", tempCharacterStr.data());
+            tempX++;
+        } else if (tempCharacter != BACKSPACE) {
+            move(tempY + 1, tempX);
+            printw("Limite de %d digitos, presione Intro para continuar", limit);
+            move(tempY, tempX);
+            characterLimit = true;
+        }
+        if (int(tempCharacter) == BACKSPACE) {
+            getyx(stdscr, tempY, tempX);
+            if (tempX != x) {
+                result.pop_back();
+                tempX--;
+                move(tempY, tempX);
+                printw(" ");
+                move(tempY, tempX);
+            }
+            tempCharacter = getch();
+        }
     }
 
     attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));
@@ -208,6 +273,12 @@ int inputIntegerDigitLimit(int digits){
         }
         tempCharacter = getch();
 
+    }
+    if(digitLimit){
+        move(tempY+1, 0);
+        clrtobot();
+        move(tempY, tempX);
+        refresh();
     }
     result = atoi(tempResult.data());
     attroff(COLOR_PAIR(GREEN_TEXT_DEFAULT_BACKGROUND));

@@ -3,18 +3,20 @@
 
 #include <iostream>
 #include <ncurses/ncurses.h>
+#include <string>
 
 #include "AgentList.h"
 
 #define AGENT_MENU_OPTIONS 8
 #define AGENT_MODIFY_OPTIONS 9
+#define AGENT_SEARCH_OPTIONS 7
 
 using namespace std;
 
 class AgentMenu {
 private:
     AgentList* agentListRef;
-    static void enterToContinue(int HEIGHT, int LENGTH);
+    static void enterToContinue();
     //add an agent
     void addAgent();
     //delete an agent
@@ -23,13 +25,19 @@ private:
     void modifyAgent();
     //search an agent by any attribute
     void searchAgent();
+    //when searching an agent, this function is called to print agents only with the search type
+    //searchBy -> see search options constants below, excluding EXIT_SEARCH
+    //searchTerm -> string used to compare if agent has that in their attribute
+    void searchPrintAgents(const int& searchBy, string& searchTerm);
     //sort agent, either by name or specialty
     void sortAgents();
     //print one agent
     static void printAgent(AgentNode* agentNode);
+    static void printAgentSumarized(AgentNode* agentNode);
     static void printClient(ClientNode* clientNode);
     //print all the agents
     void printClients(AgentNode* agentNode);
+    //option -> chooses if displaying with clients or not, (S/N)
     void printAgents(const string& option);
     //main menu
     void mainAgentMenu();
@@ -38,7 +46,7 @@ public:
 };
 
 enum{
-    SEARCH_CODE = 1,
+    SEARCH_CODE = 0,
     SEARCH_LAST_NAME,
     SEARCH_HOUR_START,
     SEARCH_HOUR_END,
