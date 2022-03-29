@@ -15,7 +15,9 @@ AgentMenu::AgentMenu(AgentList* agentList): agentListRef(agentList) {
 }
 
 
-void AgentMenu::enterToContinue() {
+void AgentMenu::enterToContinue(int HEIGHT, int LENGTH) {
+
+    move(HEIGHT, LENGTH);
     printw("Presione enter para continuar...\n");
     getch();
 }
@@ -89,58 +91,64 @@ void AgentMenu::addAgent() {
     name.setData(firstName, lastName);
     HEIGHT++;
 
-    //hour of when shift starts
-    move(HEIGHT, LENGTH);
-    printw("Hora de inicio de horario: ");
-    tempHour = inputInteger();
-    HEIGHT++;
 
-    //minute of when shift starts
+    //Time of when shift starts
     move(HEIGHT, LENGTH);
-    printw("Minuto de inicio de horario: ");
-    tempMinute = inputInteger();
-    HEIGHT++;
-    //if statement activated if the hour or minute is not valid
-    if(!startTime.setData(tempHour, tempMinute)) {
-        HEIGHT++;
+    printw("Inicio de jornada: ");
+    //this is to print where it separates hours and minutes
+    printCharacter(':', 2);
+    //this moves the cursor to where hour starts
+    move(HEIGHT, LENGTH+19);
+    tempHour = inputIntegerDigitLimit(2);
+    //moves cursor to a position to print : again
+    move(HEIGHT, LENGTH+19);
+    printCharacter(':', 2);
+    //this moves the cursor to where minute starts
+    move(HEIGHT, LENGTH+22);
+    tempMinute = inputIntegerDigitLimit(2);
+    while (!startTime.setData(tempHour, tempMinute)) {
         move(HEIGHT, LENGTH);
-        while (!startTime.setData(tempHour, tempMinute)) {
-            int TEMP_HEIGHT = HEIGHT;
-            printw("Ingresa la hora de nuevo: ");
-            tempHour = inputInteger();
-            TEMP_HEIGHT++;
-            move(TEMP_HEIGHT, LENGTH);
-            printw("Ingresa el minuto de nuevo: ");
-            tempMinute = inputInteger();
-        }
-        HEIGHT += 2;
+        clrtobot();
+        refresh();
+        printw("Ingresa de nuevo: ");
+        printCharacter(':', 2);
+        move(HEIGHT+1, LENGTH+18);
+        move(HEIGHT, LENGTH+18);
+        tempHour = inputIntegerDigitLimit(2);
+        move(HEIGHT, LENGTH+21);
+        tempMinute = inputIntegerDigitLimit(2);
     }
 
-    //hour of when shift ends
-    move(HEIGHT, LENGTH);
-    printw("Hora de fin de horario: ");
-    tempHour = inputInteger();
     HEIGHT++;
+
+    //Time of when shift ends
     move(HEIGHT, LENGTH);
-    //minute of when shift ends
-    printw("Minuto de fin de horario: ");
-    tempMinute = inputInteger();
-    HEIGHT++;
-    //if statement activated when hour or minute is not valid
-    if(!endTime.setData(tempHour, tempMinute)) {
-        HEIGHT++;
+    printw("Fin de jornada: ");
+    //this is to print where it separates hours and minutes
+    printCharacter(':', 2);
+    //this moves the cursor to where hour starts
+    move(HEIGHT, LENGTH+16);
+    tempHour = inputIntegerDigitLimit(2);
+    //moves cursor to a position to print : again
+    move(HEIGHT, LENGTH+16);
+    printCharacter(':', 2);
+    //this moves the cursor to where minute starts
+    move(HEIGHT, LENGTH+19);
+    tempMinute = inputIntegerDigitLimit(2);
+    while (!endTime.setData(tempHour, tempMinute)) {
         move(HEIGHT, LENGTH);
-        while (!endTime.setData(tempHour, tempMinute)) {
-            int TEMP_HEIGHT = HEIGHT;
-            printw("Ingresa la hora de nuevo: ");
-            tempHour = inputInteger();
-            TEMP_HEIGHT++;
-            move(TEMP_HEIGHT, LENGTH);
-            printw("Ingresa el minuto de nuevo: ");
-            tempMinute = inputInteger();
-        }
-        HEIGHT += 2;
+        clrtobot();
+        refresh();
+        printw("Ingresa de nuevo: ");
+        printCharacter(':', 2);
+        move(HEIGHT+1, LENGTH+18);
+        move(HEIGHT, LENGTH+18);
+        tempHour = inputIntegerDigitLimit(2);
+        move(HEIGHT, LENGTH+21);
+        tempMinute = inputIntegerDigitLimit(2);
     }
+
+    HEIGHT++;
 
     //extension
     move(HEIGHT, LENGTH);
@@ -328,9 +336,9 @@ void AgentMenu::modifyAgent() {
                 if(!has_colors()){
                     printw("Error, terminal no tiene soporte para colores");
                 } else {
-                    attron(COLOR_PAIR(WHITETEXT_BLUEBACKGROUND));
+                    attron(COLOR_PAIR(WHITE_TEXT_BLUE_BACKGROUND));
                     printw("%s", menuOptions[i].data());
-                    attroff(COLOR_PAIR(WHITETEXT_BLUEBACKGROUND));
+                    attroff(COLOR_PAIR(WHITE_TEXT_BLUE_BACKGROUND));
                 }
                 //selected option is not current option
             } else {
@@ -574,7 +582,7 @@ void AgentMenu::modifyAgent() {
                     }
                     default: {
                         printw("Opcion invalida");
-                        enterToContinue();
+                        enterToContinue(HEIGHT, LENGTH);
                     }
                 }
             }
@@ -618,7 +626,7 @@ void AgentMenu::searchAgent() {
 
                 agentListHeader();
                 printAgent(agentListRef->findData(tempAgent, SEARCH_CODE));
-                cin.ignore();enterToContinue();
+                //cin.ignore();enterToContinue(HEIGHT, LENGTH);
                 break;
             }
             case SEARCH_LAST_NAME: {
@@ -633,7 +641,7 @@ void AgentMenu::searchAgent() {
 
                 agentListHeader();
                 printAgent(agentListRef->findData(tempAgent, SEARCH_LAST_NAME));
-                enterToContinue();
+                //enterToContinue();
                 break;
             }
             case SEARCH_HOUR_START: {
@@ -652,7 +660,7 @@ void AgentMenu::searchAgent() {
 
                 agentListHeader();
                 printAgent(agentListRef->findData(tempAgent, SEARCH_HOUR_START));
-                cin.ignore();enterToContinue();
+                //cin.ignore();enterToContinue();
                 break;
             }
             case SEARCH_HOUR_END: {
@@ -671,7 +679,7 @@ void AgentMenu::searchAgent() {
 
                 agentListHeader();
                 printAgent(agentListRef->findData(tempAgent, SEARCH_HOUR_END));
-                cin.ignore();enterToContinue();
+                //cin.ignore();enterToContinue();
                 break;
             }
             case SEARCH_EXTENSION: {
@@ -688,7 +696,7 @@ void AgentMenu::searchAgent() {
 
                 agentListHeader();
                 printAgent(agentListRef->findData(tempAgent, SEARCH_EXTENSION));
-                cin.ignore();enterToContinue();
+                //cin.ignore();enterToContinue();
                 break;
             }
             case SEARCH_SPECIALTY: {
@@ -706,7 +714,7 @@ void AgentMenu::searchAgent() {
 
                 agentListHeader();
                 printAgent(agentListRef->findData(tempAgent, SEARCH_SPECIALTY));
-                cin.ignore();enterToContinue();
+                //cin.ignore();enterToContinue();
                 break;
             }
             case EXIT_SEARCH: {
@@ -716,7 +724,7 @@ void AgentMenu::searchAgent() {
             default: {
                 printw("Seleccione una opcion valida");
                 cin.ignore();
-                enterToContinue();
+                //enterToContinue();
             }
         }
     }while(!terminate);
@@ -834,6 +842,8 @@ void AgentMenu::printAgents(const string& option) {
                 while (temp != nullptr) {
                     agentListHeader();
                     printAgent(temp);
+                    HEIGHT++;
+                    move(HEIGHT, LENGTH);
                     if(temp->getData().getClientList()->getFirstPos() != nullptr) {
                         HEIGHT++;
                         move(HEIGHT, LENGTH);
@@ -862,6 +872,11 @@ void AgentMenu::printAgents(const string& option) {
     } else {
         printw("No hay agentes en la lista");
     }
+    HEIGHT++;
+    LENGTH = 0;
+    enterToContinue(HEIGHT, LENGTH);
+    clear();
+    refresh();
 }
 
 void AgentMenu::printClients(AgentNode* agentNode){
@@ -889,6 +904,11 @@ void AgentMenu::printClients(AgentNode* agentNode){
     } else {
         printw("No hay clientes en la lista");
     }
+    HEIGHT++;
+    LENGTH = 0;
+    enterToContinue(HEIGHT, LENGTH);
+    clear();
+    refresh();
 }
 
 void AgentMenu::mainAgentMenu() {
@@ -910,8 +930,9 @@ void AgentMenu::mainAgentMenu() {
 
     //color pair for selecting an option
     start_color();
-    init_pair(WHITETEXT_BLUEBACKGROUND, COLOR_WHITE, COLOR_CYAN);
-    init_pair(REDTEXT_DEFAULTBACKGROUND, COLOR_RED, COLOR_BLACK);
+    init_pair(WHITE_TEXT_BLUE_BACKGROUND, COLOR_WHITE, COLOR_CYAN);
+    init_pair(RED_TEXT_DEFAULT_BACKGROUND, COLOR_RED, COLOR_BLACK);
+    init_pair(GREEN_TEXT_DEFAULT_BACKGROUND, COLOR_GREEN, COLOR_BLACK);
 
     //clear the screen
     clear();
@@ -919,10 +940,10 @@ void AgentMenu::mainAgentMenu() {
 
     //prints the agent menu
     do{
-        attron(COLOR_PAIR(REDTEXT_DEFAULTBACKGROUND));
+        attron(COLOR_PAIR(RED_TEXT_DEFAULT_BACKGROUND));
         move(5, 35);
         printw("Use las flechas y enter para seleccionar una opcion");
-        attroff(COLOR_PAIR(REDTEXT_DEFAULTBACKGROUND));
+        attroff(COLOR_PAIR(RED_TEXT_DEFAULT_BACKGROUND));
         //HEIGHT = y axis
         HEIGHT = 10;
         //LENGTH = x axis
@@ -936,9 +957,9 @@ void AgentMenu::mainAgentMenu() {
                 if(!has_colors()){
                     printw("Error, terminal no tiene soporte para colores");
                 } else {
-                    attron(COLOR_PAIR(WHITETEXT_BLUEBACKGROUND));
+                    attron(COLOR_PAIR(WHITE_TEXT_BLUE_BACKGROUND));
                     printw("%s", menuOptions[i].data());
-                    attroff(COLOR_PAIR(WHITETEXT_BLUEBACKGROUND));
+                    attroff(COLOR_PAIR(WHITE_TEXT_BLUE_BACKGROUND));
                 }
             //selected option is not current option
             } else {
@@ -1022,8 +1043,7 @@ void AgentMenu::mainAgentMenu() {
                         printw("MOSTRAR AGENTES");
                         move(2, 0);
                         printAgents(options);
-                        cin.ignore();
-                        enterToContinue();
+                        refresh();
                         break;
                     }
                     case DELETE_ALL_AGENTS: {
@@ -1032,8 +1052,10 @@ void AgentMenu::mainAgentMenu() {
                         deleteAgents = inputString();
                         if(deleteAgents == "s" || deleteAgents == "S"){
                             agentListRef->deleteAll();
-                            cin.ignore();
-                            enterToContinue();
+                            getyx(stdscr, HEIGHT, LENGTH);
+                            HEIGHT++;
+                            LENGTH = 0;
+                            enterToContinue(HEIGHT, LENGTH);
                         }
                         clear();
                         refresh();
@@ -1044,8 +1066,12 @@ void AgentMenu::mainAgentMenu() {
                         break;
                     }
                     default: {
+                        getyx(stdscr, HEIGHT, LENGTH);
+                        HEIGHT++;
+                        move(HEIGHT, LENGTH);
                         printw("Opcion invalida");
-                        enterToContinue();
+                        HEIGHT++;
+                        enterToContinue(HEIGHT, LENGTH);
                         break;
                     }
                 }

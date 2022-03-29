@@ -7,8 +7,9 @@
 
 using namespace std;
 
-#define WHITETEXT_BLUEBACKGROUND 1
-#define REDTEXT_DEFAULTBACKGROUND 2
+#define WHITE_TEXT_BLUE_BACKGROUND 1
+#define RED_TEXT_DEFAULT_BACKGROUND 2
+#define GREEN_TEXT_DEFAULT_BACKGROUND 3
 
 #define UP 72
 #define DOWN 80
@@ -28,6 +29,8 @@ int countDigits(int n);
 
 void printSpaces(int n);
 
+void printCharacter(char character, int distanceX);
+
 bool verifyINT(int min, int max, int n);
 
 void agentListHeader();
@@ -36,6 +39,8 @@ void clientListHeader();
 
 string inputString();
 int inputInteger();
+int inputIntegerDigitLimit(int digits);
+
 
 
 #endif //PROGRAMA_UTIL_H

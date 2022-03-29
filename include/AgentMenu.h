@@ -14,7 +14,7 @@ using namespace std;
 class AgentMenu {
 private:
     AgentList* agentListRef;
-    static void enterToContinue();
+    static void enterToContinue(int HEIGHT, int LENGTH);
     //add an agent
     void addAgent();
     //delete an agent
