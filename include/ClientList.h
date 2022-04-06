@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+#include "util.h"
 #include "ClientNode.h"
 #include "ListException.h"
 

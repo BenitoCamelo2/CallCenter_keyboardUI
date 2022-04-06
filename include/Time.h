@@ -5,6 +5,8 @@
 #include <string>
 #include <chrono>
 
+#include "util.h"
+
 using namespace std;
 
 class Time {

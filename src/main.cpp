@@ -1,4 +1,4 @@
-#include <ncurses/ncurses.h>
+#include <ncurses.h>
 #include <iostream>
 #include "../include/MainMenu.h"
 

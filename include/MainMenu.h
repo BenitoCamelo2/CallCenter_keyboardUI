@@ -10,8 +10,8 @@
 #endif
 
 #include <iostream>
-#include <ncurses/ncurses.h>
 
+#include "util.h"
 #include "AgentMenu.h"
 #include "ClientMenu.h"
 

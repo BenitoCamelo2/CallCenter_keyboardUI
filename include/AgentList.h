@@ -2,6 +2,8 @@
 #define PROGRAMA_AGENTLIST_H
 
 #include <iostream>
+
+#include "util.h"
 #include "AgentNode.h"
 
 using namespace std;

@@ -2,9 +2,9 @@
 #define PROGRAMA_AGENTMENU_H
 
 #include <iostream>
-#include <ncurses/ncurses.h>
 #include <string>
 
+#include "util.h"
 #include "AgentList.h"
 
 #define AGENT_MENU_OPTIONS 8

@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "util.h"
 #include "Agent.h"
 
 using namespace std;

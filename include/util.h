@@ -2,8 +2,7 @@
 #define PROGRAMA_UTIL_H
 
 #include <iostream>
-#include <ncurses/ncurses.h>
-#include <ctype.h>
+#include <ncurses.h>
 
 using namespace std;
 

@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "util.h"
 #include "ClientList.h"
 #include "AgentMenu.h"
 
