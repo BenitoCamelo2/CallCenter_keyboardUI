@@ -422,60 +422,133 @@ void ClientMenu::printClients() {
 
 void ClientMenu::mainClientMenu() {
     bool terminate = false;
+    int HEIGHT, LENGTH;
+    int key = '\0';
+    int option = 0;
+
+    string menuOptions[CLIENT_MENU_OPTIONS] = {
+            "   Agregar cliente               ",
+            "   Eliminar cliente              ",
+            "   Modifcar cliente              ",
+            "   Buscar cliente                ",
+            "   Mostrar los clientes          ",
+            "   Eliminar TODOS los clientes   ",
+            "   Regresar                      "
+    };
+
+    //color pair for selecting an option
+    start_color();
+    init_pair(WHITE_TEXT_BLUE_BACKGROUND, COLOR_WHITE, COLOR_CYAN);
+    init_pair(RED_TEXT_DEFAULT_BACKGROUND, COLOR_RED, COLOR_BLACK);
+    init_pair(GREEN_TEXT_DEFAULT_BACKGROUND, COLOR_GREEN, COLOR_BLACK);
+
+    //clear the screen
+    clear();
+    refresh();
 
     //main client menu
     do{
-        int opc = 0;
-        system(CLEAR);
-        cout << "MENU DE CLIENTES" << endl;
-        cout << "1. Agregar cliente" << endl;
-        cout << "2. Eliminar cliente" << endl;
-        cout << "3. Modificar cliente" << endl;
-        cout << "4. Buscar cliente" << endl;
-        cout << "5. Mostrar los clientes" << endl;
-        cout << "6. Eliminar TODOS los clientes" << endl;
-        cout << "7. Regresar" << endl;
-        cout << "Option: ";
-        cin >> opc;
-        //options of the client menu, should be easily understood
-        switch(opc){
-            case ADD_CLIENT: {
-                addClient();
+        attron(COLOR_PAIR(RED_TEXT_DEFAULT_BACKGROUND));
+        move(5, 35);
+        printw("Use las flechas y enter para seleccionar una opcion");
+        attroff(COLOR_PAIR(RED_TEXT_DEFAULT_BACKGROUND));
+        //HEIGHT = y axis
+        HEIGHT = 10;
+        //LENGTH = x axis
+        LENGTH = 45;
+        //moves to "center" of screen
+        move(HEIGHT, LENGTH);
+        //prints menu options, when selected option is found it prints it with highlight
+        for(int i = 0; i < CLIENT_MENU_OPTIONS; i++){
+            //selected option is found
+            if(i == option){
+                if(!has_colors()){
+                    printw("Error, terminal no tiene soporte para colores");
+                } else {
+                    attron(COLOR_PAIR(WHITE_TEXT_BLUE_BACKGROUND));
+                    printw("%s", menuOptions[i].data());
+                    attroff(COLOR_PAIR(WHITE_TEXT_BLUE_BACKGROUND));
+                }
+                //selected option is not current option
+            } else {
+                printw("%s", menuOptions[i].data());
+            }
+            //go one line down
+            HEIGHT += 1;
+            move(HEIGHT, LENGTH);
+        }
+        //gets keystroke from user
+        key = getch();
+        switch(key) {
+            //option goes up
+            case KEY_UP: {
+                option--;
+                //makes sure option doesn't go farther than options available
+                if (option >= CLIENT_MENU_OPTIONS) {
+                    option = 0;
+                } else if (option < 0) {
+                    option = CLIENT_MENU_OPTIONS - 1;
+                }
                 break;
             }
-            case DELETE_CLIENT: {
-                deleteClient();
+                //option goes down
+            case KEY_DOWN: {
+                option++;
+                if (option >= CLIENT_MENU_OPTIONS) {
+                    option = 0;
+                } else if (option < 0) {
+                    option = CLIENT_MENU_OPTIONS - 1;
+                }
                 break;
             }
-            case MODIFY_CLIENT: {
-                modifyClient();
-                break;
-            }
-            case SEARCH_CLIENT: {
-                searchClient();
-                break;
-            }
-            case SHOW_CLIENTS: {
-                system(CLEAR);
-                cout << "MOSTRAR CLIENTES" << endl;
-                clientListHeader();
-                printClients();
-                cin.ignore();
-                enterToContinue();
-                break;
-            }
-            case DELETE_ALL_CLIENTS: {
-                clientListRef->deleteAll();
-                cin.ignore();
-                enterToContinue();
-                break;
-            }
-            case EXIT_CLIENT: {
-                terminate = true;
-                break;
-            }
-            default: {
-                cout << "xd" << endl;
+                //user selects desired option
+            case ENTER: {
+                //makes sure option is valid, just in case
+                if (option >= CLIENT_MENU_OPTIONS) {
+                    option = 0;
+                } else if (option < 0) {
+                    option = CLIENT_MENU_OPTIONS - 1;
+                }
+                switch (option) {
+                    case ADD_CLIENT: {
+                        addClient();
+                        break;
+                    }
+                    case DELETE_CLIENT: {
+                        deleteClient();
+                        break;
+                    }
+                    case MODIFY_CLIENT: {
+                        modifyClient();
+                        break;
+                    }
+                    case SEARCH_CLIENT: {
+                        searchClient();
+                        break;
+                    }
+                    case SHOW_CLIENTS: {
+                        system(CLEAR);
+                        cout << "MOSTRAR CLIENTES" << endl;
+                        clientListHeader();
+                        printClients();
+                        cin.ignore();
+                        enterToContinue();
+                        break;
+                    }
+                    case DELETE_ALL_CLIENTS: {
+                        clientListRef->deleteAll();
+                        cin.ignore();
+                        enterToContinue();
+                        break;
+                    }
+                    case EXIT_CLIENT: {
+                        terminate = true;
+                        break;
+                    }
+                    default: {
+                        cout << "xd" << endl;
+                    }
+                }
             }
         }
     }while(!terminate);

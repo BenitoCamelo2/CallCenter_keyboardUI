@@ -9,6 +9,8 @@
 
 using namespace std;
 
+#define CLIENT_MENU_OPTIONS 7
+
 class ClientMenu {
 private:
     ClientList* clientListRef;
